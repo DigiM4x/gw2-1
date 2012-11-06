@@ -45,6 +45,7 @@ generated
 .metadata/
 .DS_Store
 test-output
+password.txt
 
 #Others
 tmp

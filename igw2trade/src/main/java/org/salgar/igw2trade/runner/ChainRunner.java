@@ -1,7 +1,12 @@
 package org.salgar.igw2trade.runner;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Properties;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -35,7 +40,12 @@ public class ChainRunner {
 	private static final Logger log = Logger.getLogger(ChainRunner.class);
 
 	@SuppressWarnings({ "unchecked", "unused" })
-	public void runChain() {
+	public void runChain() throws IOException {
+		Properties props = new Properties();
+		InputStream is = new FileInputStream("password.txt");
+		props.load(is);
+		
+		
 		CookieStore cookieStore = new BasicCookieStore();
 		HttpContext localContext = new BasicHttpContext();
 		localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
@@ -67,7 +77,9 @@ public class ChainRunner {
 		context.put("operation_bracket_bottom", 100);
 		context.put("ratio_of_buy_offer_to_sell_offer", 2);
 		context.put("minimum_buy_demand", 50);
-		context.put("maximum_buy_offer", 250);
+		context.put("maximum_buy_offer", 501);
+		context.put("gw2.username", props.getProperty("gw2.username"));
+		context.put("gw2.pass", props.getProperty("gw2.password"));
 
 		Chain chain = new ChainBase();
 		chain.addCommand(new AuthenticateCommand());

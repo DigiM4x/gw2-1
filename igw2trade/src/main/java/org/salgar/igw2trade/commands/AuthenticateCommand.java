@@ -25,6 +25,8 @@ public class AuthenticateCommand implements Command {
 	private static final Logger log = Logger.getLogger(AuthenticateCommand.class);
 
 	public boolean execute(Context context) throws Exception {
+		String username = (String) context.get("gw2.username");
+		String pass = (String) context.get("gw2.pass");
 		HttpPost post = new HttpPost("https://account.guildwars2.com/login");
 		post.setHeader(
 				"User-Agent",
@@ -42,8 +44,8 @@ public class AuthenticateCommand implements Command {
 		post.getParams().setParameter(CookieSpecPNames.DATE_PATTERNS, datePatterns);
 		
 		List<NameValuePair> nv = new ArrayList<NameValuePair>();
-		nv.add(new BasicNameValuePair("email", ""));
-		nv.add(new BasicNameValuePair("password", ""));
+		nv.add(new BasicNameValuePair("email", username));
+		nv.add(new BasicNameValuePair("password", pass));
 		
 		post.setEntity(new UrlEncodedFormEntity(nv, "UTF-8"));
 		
