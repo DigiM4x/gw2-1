@@ -1,7 +1,6 @@
 package org.salgar.igw2trade.runner;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateException;
@@ -11,6 +10,7 @@ import java.util.Properties;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.swing.text.StyledEditorKit.BoldAction;
 
 import org.apache.commons.chain.Chain;
 import org.apache.commons.chain.Context;
@@ -51,7 +51,7 @@ public class ChainRunner {
 		localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
 
 		DefaultHttpClient client = (DefaultHttpClient) wrapClient(new DefaultHttpClient());
-		if(false) {
+		if(Boolean.valueOf(props.getProperty("proxy.enabled"))) {
 			HttpHost proxy = new HttpHost("proxy-bn.bn.detemobil.de", 3128);
 			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 			client.getParams()
@@ -60,7 +60,7 @@ public class ChainRunner {
 							"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.2.17) Gecko/20110420 Firefox/3.6.17");
 	
 			UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
-					"", "");
+					props.getProperty("proxy.username"), props.getProperty("proxy.password"));
 			client.getCredentialsProvider().setCredentials(
 					new AuthScope("proxy-bn.bn.detemobil.de", 3128), credentials);
 		}
@@ -69,12 +69,12 @@ public class ChainRunner {
 		context.put("cookiestore", cookieStore);
 		context.put("localContext", localContext);
 		context.put("client", client);
-		context.put("searchlevel", "20");
+		context.put("searchlevel", "26");
 		context.put("guildwarstrade_url", "http://www.guildwarstrade.com/item/");
 		context.put("minimum_amount_of_demand", 100);
 		context.put("profit_margin_against_vendor_value", 3);
 		context.put("operation_bracket_top", 1500);
-		context.put("operation_bracket_bottom", 100);
+		context.put("operation_bracket_bottom", 50);
 		context.put("ratio_of_buy_offer_to_sell_offer", 2);
 		context.put("minimum_buy_demand", 50);
 		context.put("maximum_buy_offer", 501);

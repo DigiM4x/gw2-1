@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
@@ -85,6 +87,7 @@ public class DetailAnalysisCommand implements Command {
 		log.info(result);
 
 		int i = 0;
+
 		List<String> flipCandidate = new ArrayList<String>();
 		while ((i = result.indexOf("{\"type_id", i)) > -1) {
 			int end = result.indexOf("}", i + 1);
@@ -122,7 +125,7 @@ public class DetailAnalysisCommand implements Command {
 				if (buyOffer >= vendorValue && buyOffer <= maximumBuyOffer) {
 					flipCandidate.add(object);
 				} else if ((saleOffer >= ratioOfBuyOfferToSellOfferValue
-						* vendorValue) && (vendorValue <= maximumBuyOffer) ) {
+						* (vendorValue == 0 ? 1 : vendorValue)) && (vendorValue <= maximumBuyOffer) ) {
 					flipCandidate.add(object);
 				}
 			}
