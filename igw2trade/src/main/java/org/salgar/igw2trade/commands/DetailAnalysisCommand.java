@@ -4,8 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import org.apache.commons.chain.Command;
 import org.apache.commons.chain.Context;
@@ -18,6 +16,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
+import org.salgar.igw2trade.parser.RecognitionPatterns;
 
 public class DetailAnalysisCommand implements Command {
 	private static final Logger log = Logger
@@ -28,8 +27,8 @@ public class DetailAnalysisCommand implements Command {
 		CookieStore cookieStore = (CookieStore) context.get("cookiestore");
 		String searchLevel = (String) context.get("searchlevel");
 		String url = (String) context.get("guildwarstrade_url");
-		int ratioOfBuyOfferToSellOfferValue = (Integer) context
-				.get("ratio_of_buy_offer_to_sell_offer");
+		Double ratioOfBuyOfferToSellOfferValue = Double.valueOf(context
+				.get("ratio_of_buy_offer_to_sell_offer").toString());
 		int minimumBuyDemand = (Integer) context.get("minimum_buy_demand");
 		int maximumBuyOffer = (Integer) context.get("maximum_buy_offer");
 
@@ -59,7 +58,7 @@ public class DetailAnalysisCommand implements Command {
 	@SuppressWarnings("unused")
 	private void analyze(DefaultHttpClient client, CookieStore cookieStore,
 			String ids, String searchLevel, String url,
-			int ratioOfBuyOfferToSellOfferValue, int minimumBuyDemand, int maximumBuyOffer)
+			Double ratioOfBuyOfferToSellOfferValue, int minimumBuyDemand, int maximumBuyOffer)
 			throws ClientProtocolException, IOException {
 		HttpGet get = new HttpGet(
 				"https://tradingpost-live.ncplatform.net/ws/search.json?ids="
@@ -100,20 +99,20 @@ public class DetailAnalysisCommand implements Command {
 			int vendorValue = 0;
 
 			for (int j = 0; j < fields.length; j++) {
-				if (fields[j].indexOf("max_offer_unit_price") > -1) {
+				if (fields[j].indexOf(RecognitionPatterns.BUYING_PRICE) > -1) {
 					String[] bOffer = fields[j].split(":");
 					buyOffer = Integer.valueOf(bOffer[1].substring(1,
 							bOffer[1].length() - 1));
-				} else if (fields[j].indexOf("min_sale_unit_price") > -1) {
+				} else if (fields[j].indexOf(RecognitionPatterns.SELLING_PRICE) > -1) {
 					String[] sOffer = fields[j].split(":");
 					saleOffer = Integer.valueOf(sOffer[1].substring(1,
 							sOffer[1].length() - 1));
-				} else if (fields[j].indexOf("offer_availability") > -1) {
+				} else if (fields[j].indexOf(RecognitionPatterns.BUY_ORDERS) > -1) {
 					String[] demand = fields[j].split(":");
 
 					demandValue = Integer.valueOf(demand[1].substring(1,
 							demand[1].length() - 1));
-				} else if (fields[j].indexOf("vendor_sell_price") > -1) {
+				} else if (fields[j].indexOf(RecognitionPatterns.VENDOR_PRICE) > -1) {
 					String[] vendor = fields[j].split(":");
 
 					vendorValue = Integer.valueOf(vendor[1].substring(1,
