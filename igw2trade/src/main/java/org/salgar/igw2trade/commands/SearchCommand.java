@@ -111,7 +111,8 @@ public class SearchCommand implements Command {
 			String object = result.substring(i, end + 1);
 			String[] fields = object.split(",");
 			int countValue = 0;
-			int priceValue = 0;
+			int sell_priceValue = 0;
+			int buy_priceValue = 0;
 			int vendorValue = 0;
 			for (int j = 0, n = fields.length; j < n; j++) {
 
@@ -120,11 +121,16 @@ public class SearchCommand implements Command {
 
 					countValue = Integer.valueOf(count[1].substring(1,
 							count[1].length() - 1));
-				} else if (fields[j].indexOf("price") > -1) {
-					String[] price = fields[j].split(":");
+				} else if (fields[j].indexOf("sell_price") > -1) {
+					String[] sell_price = fields[j].split(":");
 
-					priceValue = Integer.valueOf(price[1].substring(1,
-							price[1].length() - 1));
+					sell_priceValue = Integer.valueOf(sell_price[1].substring(1,
+							sell_price[1].length() - 1));
+				} else if (fields[j].indexOf("buy_price") > -1) {
+					String[] buy_price = fields[j].split(":");
+
+					buy_priceValue = Integer.valueOf(buy_price[1].substring(1,
+							buy_price[1].length() - 1)); 
 				} else if (fields[j].indexOf("vendor") > -1) {
 					String[] vendor = fields[j].split(":");
 
@@ -133,8 +139,7 @@ public class SearchCommand implements Command {
 				}
 			}
 			if (countValue >= minimumAmountOfDemand
-					&& priceValue > profitMarginAgainstVendor * vendorValue
-					&& (priceValue <= operationBracketTop && priceValue >= operationBracketBottom)) {
+					&& (sell_priceValue <= operationBracketTop && (buy_priceValue >=  vendorValue ? buy_priceValue :vendorValue) >= operationBracketBottom)) {
 				log.info(object);
 				worthyObjects.add(object);
 			}

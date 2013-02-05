@@ -69,13 +69,13 @@ public class ChainRunner {
 		context.put("cookiestore", cookieStore);
 		context.put("localContext", localContext);
 		context.put("client", client);
-		context.put("searchlevel", "50");
+		context.put("searchlevel", "25");
 		context.put("guildwarstrade_url", "http://www.guildwarstrade.com/item/");
-		context.put("minimum_amount_of_demand", 200);
+		context.put("minimum_amount_of_demand", 150);
 		context.put("profit_margin_against_vendor_value", 3);
 		context.put("operation_bracket_top", 1500);
 		context.put("operation_bracket_bottom", 50);
-		context.put("ratio_of_buy_offer_to_sell_offer", 2.0);
+		context.put("ratio_of_buy_offer_to_sell_offer", 3);
 		context.put("minimum_buy_demand", 50);
 		context.put("maximum_buy_offer", 1501);
 		context.put("gw2.username", props.getProperty("gw2.username"));
