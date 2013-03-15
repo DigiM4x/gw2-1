@@ -16,6 +16,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
+import org.salgar.igw2trade.domain.AnalyzedObject;
 import org.salgar.igw2trade.parser.RecognitionPatterns;
 
 public class DetailAnalysisCommand implements Command {
@@ -30,7 +31,7 @@ public class DetailAnalysisCommand implements Command {
 		Double ratioOfBuyOfferToSellOfferValue = Double.valueOf(context
 				.get("ratio_of_buy_offer_to_sell_offer").toString());
 		int minimumBuyDemand = (Integer) context.get("minimum_buy_demand");
-		int maximumBuyOffer = (Integer) context.get("maximum_buy_offer");
+		int maximumBuyOffer = (Integer) context.get("operation_bracket_top");
 
 		@SuppressWarnings("unchecked")
 		List<String> worthAnalyzing = (List<String>) context
@@ -87,8 +88,9 @@ public class DetailAnalysisCommand implements Command {
 
 		int i = 0;
 
-		List<String> flipCandidate = new ArrayList<String>();
+		List<AnalyzedObject> flipCandidate = new ArrayList<AnalyzedObject>();
 		while ((i = result.indexOf("{\"type_id", i)) > -1) {
+			AnalyzedObject analyzedObject = new AnalyzedObject();
 			int end = result.indexOf("}", i + 1);
 			String object = result.substring(i, end + 1);
 			String[] fields = object.split(",");
@@ -99,33 +101,46 @@ public class DetailAnalysisCommand implements Command {
 			int vendorValue = 0;
 
 			for (int j = 0; j < fields.length; j++) {
-				if (fields[j].indexOf(RecognitionPatterns.BUYING_PRICE) > -1) {
+				if(fields[j].indexOf(RecognitionPatterns.DATA_ID) > -1) {
+					String[] data_id = fields[j].split(":");
+					analyzedObject.setDataId(Integer.valueOf(data_id[1].substring(1,
+							data_id[1].length() - 1)));
+				} else if(fields[j].indexOf(RecognitionPatterns.NAME) > -1) {
+					String name[] = fields[j].split(":");
+					analyzedObject.setName(name[1].substring(1,	name[1].length() - 1));
+				} else if (fields[j].indexOf(RecognitionPatterns.BUYING_PRICE) > -1) {
 					String[] bOffer = fields[j].split(":");
 					buyOffer = Integer.valueOf(bOffer[1].substring(1,
 							bOffer[1].length() - 1));
+					analyzedObject.setBuyOffer(buyOffer);
 				} else if (fields[j].indexOf(RecognitionPatterns.SELLING_PRICE) > -1) {
 					String[] sOffer = fields[j].split(":");
 					saleOffer = Integer.valueOf(sOffer[1].substring(1,
 							sOffer[1].length() - 1));
+					analyzedObject.setSalesOffer(saleOffer);
 				} else if (fields[j].indexOf(RecognitionPatterns.BUY_ORDERS) > -1) {
 					String[] demand = fields[j].split(":");
 
 					demandValue = Integer.valueOf(demand[1].substring(1,
 							demand[1].length() - 1));
+					analyzedObject.setDemand(demandValue);
 				} else if (fields[j].indexOf(RecognitionPatterns.VENDOR_PRICE) > -1) {
 					String[] vendor = fields[j].split(":");
 
 					vendorValue = Integer.valueOf(vendor[1].substring(1,
 							vendor[1].length() - 1));
+					analyzedObject.setVendorValue(vendorValue);
 				}
 			}
 			if (saleOffer >= ratioOfBuyOfferToSellOfferValue * buyOffer
 					&& demandValue >= minimumBuyDemand) {
-				if (buyOffer >= vendorValue && buyOffer <= maximumBuyOffer) {
-					flipCandidate.add(object);
+				if (buyOffer >= vendorValue && buyOffer <= maximumBuyOffer) {					
+					analyzedObject.setProfitability(Double.valueOf(saleOffer) / Double.valueOf(buyOffer));
+					flipCandidate.add(analyzedObject);
 				} else if ((saleOffer >= ratioOfBuyOfferToSellOfferValue
 						* (vendorValue == 0 ? 1 : vendorValue)) && (vendorValue <= maximumBuyOffer) ) {
-					flipCandidate.add(object);
+					analyzedObject.setProfitability(Double.valueOf(saleOffer) / Double.valueOf((vendorValue == 0 ? 1 : vendorValue)));
+					flipCandidate.add(analyzedObject);
 				}
 			}
 			i = end;
@@ -133,13 +148,8 @@ public class DetailAnalysisCommand implements Command {
 
 		log.info("Flip candidates: ");
 
-		String pattern = "\"data_id\":\"";
-		for (String object : flipCandidate) {
-			String data_id = object.substring(
-					object.indexOf(pattern) + pattern.length(),
-					object.indexOf("\"",
-							object.indexOf(pattern) + pattern.length()));
-			System.out.println("<a href=\"" + url + data_id + "\">" + url + data_id + "</a></br>");
+		for (AnalyzedObject analyzedObject : flipCandidate) {		
+			System.out.println("<a href=\"" + url + analyzedObject.getDataId() + "\">" + analyzedObject.getName() + " profit ratio: " + analyzedObject.getProfitability()  + "</a></br>");
 			// log.info(url + data_id);
 
 		}

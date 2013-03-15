@@ -10,7 +10,6 @@ import java.util.Properties;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.swing.text.StyledEditorKit.BoldAction;
 
 import org.apache.commons.chain.Chain;
 import org.apache.commons.chain.Context;
@@ -34,12 +33,13 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 import org.salgar.igw2trade.commands.AuthenticateCommand;
 import org.salgar.igw2trade.commands.DetailAnalysisCommand;
+import org.salgar.igw2trade.commands.MultipleLevelSearchCommand;
 import org.salgar.igw2trade.commands.SearchCommand;
 
 public class ChainRunner {
 	private static final Logger log = Logger.getLogger(ChainRunner.class);
 
-	@SuppressWarnings({ "unchecked", "unused" })
+	@SuppressWarnings({ "unchecked"})
 	public void runChain() throws IOException {
 		Properties props = new Properties();
 		InputStream is = new FileInputStream("password.txt");
@@ -69,21 +69,22 @@ public class ChainRunner {
 		context.put("cookiestore", cookieStore);
 		context.put("localContext", localContext);
 		context.put("client", client);
-		context.put("searchlevel", "25");
+		context.put("searchlevel", "40");
+		context.put("searchlevelMax", "45");
 		context.put("guildwarstrade_url", "http://www.guildwarstrade.com/item/");
 		context.put("minimum_amount_of_demand", 150);
-		context.put("profit_margin_against_vendor_value", 3);
-		context.put("operation_bracket_top", 1500);
+		context.put("profit_margin_against_vendor_value", 2);
+		context.put("operation_bracket_top", 100500);
 		context.put("operation_bracket_bottom", 50);
-		context.put("ratio_of_buy_offer_to_sell_offer", 3);
+		context.put("ratio_of_buy_offer_to_sell_offer", 2);
 		context.put("minimum_buy_demand", 50);
-		context.put("maximum_buy_offer", 1501);
 		context.put("gw2.username", props.getProperty("gw2.username"));
 		context.put("gw2.pass", props.getProperty("gw2.password"));
 
 		Chain chain = new ChainBase();
 		chain.addCommand(new AuthenticateCommand());
 		chain.addCommand(new SearchCommand());
+		chain.addCommand(new MultipleLevelSearchCommand());
 		chain.addCommand(new DetailAnalysisCommand());
 
 		try {

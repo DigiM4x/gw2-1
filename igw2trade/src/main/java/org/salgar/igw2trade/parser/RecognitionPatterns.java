@@ -5,4 +5,6 @@ public class RecognitionPatterns {
 	public final static String SELLING_PRICE = "sell_price";
 	public final static String BUY_ORDERS = "buy_count";
 	public final static String VENDOR_PRICE = "vendor"; 
+	public final static String DATA_ID = "data_id";
+	public final static String NAME = "name";
 }
