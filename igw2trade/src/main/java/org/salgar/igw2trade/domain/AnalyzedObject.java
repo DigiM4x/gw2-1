@@ -8,6 +8,7 @@ public class AnalyzedObject {
 	private int vendorValue;
 	private double profitability;
 	private String name;
+	private int rarity = 0;
 
 	public int getDataId() {
 		return dataId;
@@ -63,5 +64,13 @@ public class AnalyzedObject {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public int getRarity() {
+		return rarity;
+	}
+
+	public void setRarity(int rarity) {
+		this.rarity = rarity;
 	}
 }
